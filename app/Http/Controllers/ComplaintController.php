@@ -26,14 +26,19 @@ class ComplaintController extends Controller
             'body'=>'required',
             'image'=>'required',
         ]);
-        Complains::create([
+        $complains = Complains::create([
             'user_id' => auth()->id(),
             'department' =>request('department'),
             'category' =>request('category'),
             'course_and_section' => request('course_and_section'),
             'body' => request('body'),
-            'image' => request('image'),
+
         ]);
+        if (request()->hasFile('image')) {
+            $filename = request()->image->getClientOriginalName();
+            request()->image->storeAs('reports', $filename, 'public');
+            $complains->update(['image' => $filename]);
+        }
         Alert::toast('Submitted Successfully!','success');
         return redirect()->route('history');
     }
